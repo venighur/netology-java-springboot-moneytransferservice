@@ -6,27 +6,51 @@ import ru.netology.moneytransferservice.exceptions.TransferError;
 import ru.netology.moneytransferservice.models.Operation;
 import ru.netology.moneytransferservice.models.OperationConfirm;
 import ru.netology.moneytransferservice.models.OperationResult;
+import ru.netology.moneytransferservice.utils.Logger;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
 public class TransferService {
-    public OperationResult completeTransfer(Operation operation) throws InvalidData, TransferError {
-        if (!isValidData(operation)) {
-            throw new InvalidData("Переданы неверные данные");
-        }
+    private final String INVALID_DATA_MESSAGE = "Переданы неверные данные";
+    private final String TRANSFER_ERROR_MESSAGE = "При выполнении перевода произошла ошибка";
+    private final String INVALID_CODE_MESSAGE = "Неверный код подтверждения";
 
-        if (!canComplete(operation)) {
-            throw new TransferError("При выполнении перевода произошла ошибка");
-        }
+    private final Logger logger;
 
-        return new OperationResult(UUID.randomUUID().toString());
+    public TransferService() throws FileNotFoundException {
+        this.logger = new Logger();
     }
 
-    public OperationResult confirmTransfer(OperationConfirm confirm) throws TransferError {
-        if (!isValidCode(confirm.getCode())) {
-            throw new TransferError("Неверный код подтверждения");
+    public OperationResult completeTransfer(Operation operation) throws InvalidData, TransferError, IOException {
+        if (!isValidData(operation)) {
+            throw new InvalidData(INVALID_DATA_MESSAGE);
         }
+
+        String operationId = UUID.randomUUID().toString();
+        logger.writeLog(new Date() + " [" + operationId + "] INFO: Запрос перевода с карты №" +
+                operation.getCardFromNumber() + " на карту №" + operation.getCardToNumber() +
+                ", сумма перевода " + operation.getAmount().getValue() / 100 + " " + operation.getAmount().getCurrency() +
+                ", комиссия " + operation.getAmount().getValue() / 10000 + " " + operation.getAmount().getCurrency() + "\n");
+
+        if (!canComplete(operation)) {
+            logger.writeLog(new Date() + " [" + operationId + "] ERROR: " + TRANSFER_ERROR_MESSAGE + "\n");
+            throw new TransferError(TRANSFER_ERROR_MESSAGE);
+        }
+
+        return new OperationResult(operationId);
+    }
+
+    public OperationResult confirmTransfer(OperationConfirm confirm) throws TransferError, IOException {
+        if (!isValidCode(confirm.getCode())) {
+            logger.writeLog(new Date() + " [" + confirm.getOperationId() + "] ERROR: " + INVALID_CODE_MESSAGE + "\n");
+            throw new TransferError(INVALID_CODE_MESSAGE);
+        }
+
+        logger.writeLog(new Date() + " [" + confirm.getOperationId() + "] INFO: Перевод выаолнен" + "\n");
         return new OperationResult(confirm.operationId);
     }
 
@@ -49,7 +73,7 @@ public class TransferService {
         int value = 100_000;
 
         return operation.getAmount().getCurrency().equals(currency) &&
-                operation.getAmount().getValue() <= value;
+                operation.getAmount().getValue() <= value * 100;
     }
 
     private boolean isValidCode(String code) {

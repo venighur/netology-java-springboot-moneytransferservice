@@ -11,6 +11,8 @@ import ru.netology.moneytransferservice.models.OperationConfirm;
 import ru.netology.moneytransferservice.models.OperationResult;
 import ru.netology.moneytransferservice.services.TransferService;
 
+import java.io.IOException;
+
 @CrossOrigin
 @RestController
 public class TransferController {
@@ -21,12 +23,12 @@ public class TransferController {
     }
 
     @PostMapping("/transfer")
-    public OperationResult completeTransfer(@RequestBody Operation operation) throws InvalidData, TransferError {
+    public OperationResult completeTransfer(@RequestBody Operation operation) throws InvalidData, TransferError, IOException {
         return transferService.completeTransfer(operation);
     }
 
     @PostMapping("/confirmOperation")
-    public OperationResult confirmTransfer(@RequestBody OperationConfirm confirm) throws TransferError {
+    public OperationResult confirmTransfer(@RequestBody OperationConfirm confirm) throws TransferError, IOException {
         return transferService.confirmTransfer(confirm);
     }
 }
