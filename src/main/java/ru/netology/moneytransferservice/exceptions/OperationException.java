@@ -1,19 +1,19 @@
 package ru.netology.moneytransferservice.exceptions;
 
 abstract public class OperationException extends Throwable {
-    private int id;
+    private String id;
     private String message;
 
-    public OperationException(int id, String message) {
+    public OperationException(String id, String message) {
         this.id = id;
         this.message = message;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

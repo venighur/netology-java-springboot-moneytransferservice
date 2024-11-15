@@ -26,19 +26,21 @@ public class TransferService {
     }
 
     public OperationResult completeTransfer(Operation operation) throws InvalidData, TransferError, IOException {
-        if (!isValidData(operation)) {
-            throw new InvalidData(INVALID_DATA_MESSAGE);
-        }
-
         String operationId = UUID.randomUUID().toString();
+
         logger.writeLog(new Date() + " [" + operationId + "] INFO: Запрос перевода с карты №" +
                 operation.getCardFromNumber() + " на карту №" + operation.getCardToNumber() +
                 ", сумма перевода " + operation.getAmount().getValue() / 100 + " " + operation.getAmount().getCurrency() +
                 ", комиссия " + operation.getAmount().getValue() / 10000 + " " + operation.getAmount().getCurrency() + "\n");
 
+        if (!isValidData(operation)) {
+            logger.writeLog(new Date() + " [" + operationId + "] ERROR: " + INVALID_DATA_MESSAGE + "\n");
+            throw new InvalidData(operationId, INVALID_DATA_MESSAGE);
+        }
+
         if (!canComplete(operation)) {
             logger.writeLog(new Date() + " [" + operationId + "] ERROR: " + TRANSFER_ERROR_MESSAGE + "\n");
-            throw new TransferError(TRANSFER_ERROR_MESSAGE);
+            throw new TransferError(operationId, TRANSFER_ERROR_MESSAGE);
         }
 
         return new OperationResult(operationId);
@@ -47,7 +49,7 @@ public class TransferService {
     public OperationResult confirmTransfer(OperationConfirm confirm) throws TransferError, IOException {
         if (!isValidCode(confirm.getCode())) {
             logger.writeLog(new Date() + " [" + confirm.getOperationId() + "] ERROR: " + INVALID_CODE_MESSAGE + "\n");
-            throw new TransferError(INVALID_CODE_MESSAGE);
+            throw new TransferError(confirm.getOperationId(), INVALID_CODE_MESSAGE);
         }
 
         logger.writeLog(new Date() + " [" + confirm.getOperationId() + "] INFO: Перевод выаолнен" + "\n");
