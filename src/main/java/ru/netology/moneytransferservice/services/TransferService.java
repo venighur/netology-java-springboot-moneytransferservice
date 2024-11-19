@@ -52,7 +52,7 @@ public class TransferService {
             throw new TransferError(confirm.getOperationId(), INVALID_CODE_MESSAGE);
         }
 
-        logger.writeLog(new Date() + " [" + confirm.getOperationId() + "] INFO: Перевод выаолнен" + "\n");
+        logger.writeLog(new Date() + " [" + confirm.getOperationId() + "] INFO: Перевод выполнен" + "\n");
         return new OperationResult(confirm.operationId);
     }
 
@@ -71,7 +71,7 @@ public class TransferService {
 
     private boolean canComplete(Operation operation) {
         // эмуляция проверки возможности выполнения перевода
-        String currency = "RUB";
+        String currency = "RUR";
         int value = 100_000;
 
         return operation.getAmount().getCurrency().equals(currency) &&
