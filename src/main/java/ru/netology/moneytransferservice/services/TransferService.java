@@ -21,13 +21,18 @@ public class TransferService {
 
     private final Logger logger;
 
+    private final String operationId;
+
+    public TransferService(String operationId) throws FileNotFoundException {
+        logger = new Logger();
+        this.operationId = operationId;
+    }
+
     public TransferService() throws FileNotFoundException {
-        this.logger = new Logger();
+        this(UUID.randomUUID().toString());
     }
 
     public OperationResult completeTransfer(Operation operation) throws InvalidData, TransferError, IOException {
-        String operationId = UUID.randomUUID().toString();
-
         logger.writeLog(new Date() + " [" + operationId + "] INFO: Запрос перевода с карты №" +
                 operation.getCardFromNumber() + " на карту №" + operation.getCardToNumber() +
                 ", сумма перевода " + operation.getAmount().getValue() / 100 + " " + operation.getAmount().getCurrency() +

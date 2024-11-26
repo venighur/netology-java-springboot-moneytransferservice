@@ -16,4 +16,15 @@ public class OperationResult {
     public void setOperationId(String operationId) {
         this.operationId = operationId;
     }
+
+    @Override
+    public int hashCode() {
+        return operationId.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        OperationResult o = (OperationResult) obj;
+        return operationId.equals(o.getOperationId());
+    }
 }

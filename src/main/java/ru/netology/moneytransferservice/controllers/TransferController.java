@@ -23,12 +23,12 @@ public class TransferController {
     }
 
     @PostMapping("/transfer")
-    public OperationResult completeTransfer(@RequestBody Operation operation) throws InvalidData, TransferError, IOException {
+    public OperationResult complete(@RequestBody Operation operation) throws InvalidData, TransferError, IOException {
         return transferService.completeTransfer(operation);
     }
 
     @PostMapping("/confirmOperation")
-    public OperationResult confirmTransfer(@RequestBody OperationConfirm confirm) throws TransferError, IOException {
+    public OperationResult confirm(@RequestBody OperationConfirm confirm) throws TransferError, IOException {
         return transferService.confirmTransfer(confirm);
     }
 }
